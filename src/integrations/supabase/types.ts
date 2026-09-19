@@ -14,7 +14,291 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      article_likes: {
+        Row: {
+          article_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_likes_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      articles: {
+        Row: {
+          author_name: string
+          category_id: string
+          content: Json
+          created_at: string
+          excerpt: string
+          id: string
+          image_alt: string
+          image_key: string
+          is_featured: boolean
+          published_date: string
+          reading_time: number
+          slug: string
+          status: Database["public"]["Enums"]["article_status"]
+          subtitle: string | null
+          tags: string[]
+          title: string
+          topic: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          author_name?: string
+          category_id: string
+          content?: Json
+          created_at?: string
+          excerpt: string
+          id?: string
+          image_alt: string
+          image_key: string
+          is_featured?: boolean
+          published_date: string
+          reading_time?: number
+          slug: string
+          status?: Database["public"]["Enums"]["article_status"]
+          subtitle?: string | null
+          tags?: string[]
+          title: string
+          topic?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          author_name?: string
+          category_id?: string
+          content?: Json
+          created_at?: string
+          excerpt?: string
+          id?: string
+          image_alt?: string
+          image_key?: string
+          is_featured?: boolean
+          published_date?: string
+          reading_time?: number
+          slug?: string
+          status?: Database["public"]["Enums"]["article_status"]
+          subtitle?: string | null
+          tags?: string[]
+          title?: string
+          topic?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comments: {
+        Row: {
+          article_id: string
+          body: string
+          created_at: string
+          id: string
+          parent_id: string | null
+          status: Database["public"]["Enums"]["comment_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          body: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          status?: Database["public"]["Enums"]["comment_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          status?: Database["public"]["Enums"]["comment_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      followers: {
+        Row: {
+          created_at: string
+          receive_updates: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          receive_updates?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          receive_updates?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      newsletter_subscriptions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +307,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      app_role: "editor" | "reader"
+      article_status: "draft" | "published"
+      comment_status: "pending" | "approved" | "hidden"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +436,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["editor", "reader"],
+      article_status: ["draft", "published"],
+      comment_status: ["pending", "approved", "hidden"],
+    },
   },
 } as const
