@@ -10,18 +10,37 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as StoriesRouteImport } from './routes/stories'
 import { Route as CategoriesSlugRouteImport } from './routes/categories.$slug'
+import { Route as StoriesSlugRouteImport } from './routes/stories.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoriesRoute = CategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StoriesRoute = StoriesRouteImport.update({
@@ -34,38 +53,83 @@ const CategoriesSlugRoute = CategoriesSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => CategoriesRoute,
 } as any)
+const StoriesSlugRoute = StoriesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => StoriesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/categories': typeof CategoriesRouteWithChildren
-  '/stories': typeof StoriesRoute
+  '/contact': typeof ContactRoute
+  '/search': typeof SearchRoute
+  '/stories': typeof StoriesRouteWithChildren
   '/categories/$slug': typeof CategoriesSlugRoute
+  '/stories/$slug': typeof StoriesSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/categories': typeof CategoriesRouteWithChildren
-  '/stories': typeof StoriesRoute
+  '/contact': typeof ContactRoute
+  '/search': typeof SearchRoute
+  '/stories': typeof StoriesRouteWithChildren
   '/categories/$slug': typeof CategoriesSlugRoute
+  '/stories/$slug': typeof StoriesSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/categories': typeof CategoriesRouteWithChildren
-  '/stories': typeof StoriesRoute
+  '/contact': typeof ContactRoute
+  '/search': typeof SearchRoute
+  '/stories': typeof StoriesRouteWithChildren
   '/categories/$slug': typeof CategoriesSlugRoute
+  '/stories/$slug': typeof StoriesSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/categories' | '/stories' | '/categories/$slug'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/categories'
+    | '/contact'
+    | '/search'
+    | '/stories'
+    | '/categories/$slug'
+    | '/stories/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/categories' | '/stories' | '/categories/$slug'
-  id: '__root__' | '/' | '/categories' | '/stories' | '/categories/$slug'
+  to:
+    | '/'
+    | '/about'
+    | '/categories'
+    | '/contact'
+    | '/search'
+    | '/stories'
+    | '/categories/$slug'
+    | '/stories/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/categories'
+    | '/contact'
+    | '/search'
+    | '/stories'
+    | '/categories/$slug'
+    | '/stories/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   CategoriesRoute: typeof CategoriesRouteWithChildren
-  StoriesRoute: typeof StoriesRoute
+  ContactRoute: typeof ContactRoute
+  SearchRoute: typeof SearchRoute
+  StoriesRoute: typeof StoriesRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -77,11 +141,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/categories': {
       id: '/categories'
       path: '/categories'
       fullPath: '/categories'
       preLoaderRoute: typeof CategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/stories': {
@@ -98,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoriesSlugRouteImport
       parentRoute: typeof CategoriesRoute
     }
+    '/stories/$slug': {
+      id: '/stories/$slug'
+      path: '/$slug'
+      fullPath: '/stories/$slug'
+      preLoaderRoute: typeof StoriesSlugRouteImport
+      parentRoute: typeof StoriesRoute
+    }
   }
 }
 
@@ -113,10 +205,24 @@ const CategoriesRouteWithChildren = CategoriesRoute._addFileChildren(
   CategoriesRouteChildren,
 )
 
+interface StoriesRouteChildren {
+  StoriesSlugRoute: typeof StoriesSlugRoute
+}
+
+const StoriesRouteChildren: StoriesRouteChildren = {
+  StoriesSlugRoute: StoriesSlugRoute,
+}
+
+const StoriesRouteWithChildren =
+  StoriesRoute._addFileChildren(StoriesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   CategoriesRoute: CategoriesRouteWithChildren,
-  StoriesRoute: StoriesRoute,
+  ContactRoute: ContactRoute,
+  SearchRoute: SearchRoute,
+  StoriesRoute: StoriesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
