@@ -121,9 +121,11 @@ export const getAdminData = createServerFn({ method: "GET" }).middleware([requir
 export const saveArticle = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((data) => articleInput.parse(data)).handler(async ({ data, context }) => {
   const { data: role } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId).eq("role", "editor").maybeSingle();
   if (!role) throw new Error("Editor access required");
-  const { id, ...payload } = data;
+  const { id, subtitle, ...rest } = data;
+  const payload = { ...rest, subtitle: subtitle ?? null };
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const query = id ? supabaseAdmin.from("articles").update(payload).eq("id", id).select().single() : supabaseAdmin.from("articles").insert(payload).select().single();
+
   const { data: saved, error } = await query;
   if (error) throw new Error(error.message);
   return saved;
