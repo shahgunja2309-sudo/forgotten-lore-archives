@@ -6,7 +6,7 @@ import { formatDate, imageFor } from "@/lib/publication";
 import { StoryCard } from "@/components/story-card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import hero from "@/assets/voynich-manuscript.jpg";
+import hero from "@/assets/hero-archive.jpg";
 
 export const Route = createFileRoute("/")({
   loader: () => getHomeData(),
