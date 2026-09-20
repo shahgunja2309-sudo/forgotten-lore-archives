@@ -46,15 +46,19 @@ export const getArticle = createServerFn({ method: "GET" })
     const { data: row, error } = await client.from("articles").select("*, categories(*)").eq("slug", data.slug).eq("status", "published").maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) return null;
-    const [article] = await enrich(client, [row]);
+    const article = (await enrich(client, [row]))[0]!;
     const { data: relatedRows } = await client.from("articles").select("*, categories(*)").eq("status", "published").eq("category_id", row.category_id).neq("id", row.id).limit(3);
     let related = await enrich(client, relatedRows ?? []);
     if (related.length < 3) {
       const { data: fallback } = await client.from("articles").select("*, categories(*)").eq("status", "published").neq("id", row.id).limit(3);
       related = await enrich(client, fallback ?? []);
     }
-    const { data: comments } = await client.from("comments").select("*, profiles(display_name), comment_likes(user_id)").eq("article_id", row.id).eq("status", "approved").order("created_at");
-    return { article, related: related.slice(0, 3), comments: comments ?? [] };
+    const { data: commentRows } = await client.from("comments").select("*, comment_likes(user_id)").eq("article_id", row.id).eq("status", "approved").order("created_at");
+    const authorIds = [...new Set((commentRows ?? []).map((c) => c.user_id))];
+    const { data: profiles } = authorIds.length ? await client.from("profiles").select("id, display_name").in("id", authorIds) : { data: [] };
+    const comments = (commentRows ?? []).map((c) => ({ ...c, profiles: { display_name: profiles?.find((p) => p.id === c.user_id)?.display_name ?? "Reader" } }));
+    return { article, related: related.slice(0, 3), comments };
+
   });
 
 export const getCategory = createServerFn({ method: "GET" })
@@ -117,9 +121,11 @@ export const getAdminData = createServerFn({ method: "GET" }).middleware([requir
 export const saveArticle = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((data) => articleInput.parse(data)).handler(async ({ data, context }) => {
   const { data: role } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId).eq("role", "editor").maybeSingle();
   if (!role) throw new Error("Editor access required");
-  const { id, ...payload } = data;
+  const { id, subtitle, ...rest } = data;
+  const payload = { ...rest, subtitle: subtitle ?? null };
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const query = id ? supabaseAdmin.from("articles").update(payload).eq("id", id).select().single() : supabaseAdmin.from("articles").insert(payload).select().single();
+
   const { data: saved, error } = await query;
   if (error) throw new Error(error.message);
   return saved;
