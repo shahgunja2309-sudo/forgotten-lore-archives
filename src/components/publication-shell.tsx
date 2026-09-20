@@ -3,7 +3,7 @@ import { Menu, Search, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const nav = [{ to: "/", label: "Home" }, { to: "/stories", label: "Stories" }, { to: "/categories", label: "Categories" }, { to: "/about", label: "About" }] as const;
+const nav = [{ to: "/", label: "Home" }, { to: "/stories", label: "Blog" }, { to: "/categories", label: "Categories" }, { to: "/about", label: "About" }] as const;
 
 export function PublicationShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -26,7 +26,7 @@ export function PublicationShell({ children }: { children: React.ReactNode }) {
     <footer className="border-t border-border py-14">
       <div className="mx-auto grid max-w-[1480px] gap-10 px-5 md:grid-cols-2 lg:px-10">
         <div><p className="font-display text-2xl uppercase tracking-[0.12em]">The Hidden Chronicle</p><p className="mt-3 text-sm text-muted-foreground">Forgotten stories. Unanswered questions.</p></div>
-        <div className="flex flex-wrap gap-x-7 gap-y-3 md:justify-end">{["Stories","Categories","About","Contact"].map((label) => <Link key={label} to={`/${label.toLowerCase()}` as "/stories"} className="text-xs uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground">{label}</Link>)}</div>
+        <div className="flex flex-wrap gap-x-7 gap-y-3 md:justify-end">{[["Blog","/stories"],["Categories","/categories"],["About","/about"],["Contact","/contact"]].map(([label,to]) => <Link key={label} to={to as "/stories"} className="text-xs uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground">{label}</Link>)}</div>
       </div>
       <div className="mx-auto mt-10 flex max-w-[1480px] justify-between border-t border-border px-5 pt-6 text-[10px] uppercase tracking-[0.15em] text-muted-foreground lg:px-10"><span>Independent historical journal</span><Link to="/admin" className="transition-colors hover:text-foreground">Editorial desk</Link><span>© 2026</span></div>
     </footer>
