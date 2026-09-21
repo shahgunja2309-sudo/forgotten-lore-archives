@@ -13,8 +13,8 @@ export function PublicationShell({ children }: { children: React.ReactNode }) {
   return <div className="min-h-screen bg-background text-foreground">
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/70 bg-background/88 backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-[1480px] items-center justify-between px-5 lg:px-10">
-        <Link to="/" className="font-display text-xs uppercase tracking-[0.14em] text-foreground sm:text-base lg:text-xl">The Hidden Chronicle</Link>
-        <nav className="hidden items-center gap-3 sm:flex md:gap-5 lg:gap-9">{nav.map((item) => <Link key={item.to} to={item.to} activeOptions={{ exact: item.to === "/" }} className="nav-link hidden lg:block" activeProps={{ className: "nav-link text-accent" }}>{item.label}</Link>)}</nav>
+        <Link to="/" className="font-display text-xs uppercase tracking-[0.12em] text-foreground sm:text-sm lg:text-xl lg:tracking-[0.14em]">The Hidden Chronicle</Link>
+        <nav className="hidden items-center gap-3 sm:flex md:gap-5 lg:gap-9">{nav.map((item) => <Link key={item.to} to={item.to} activeOptions={{ exact: item.to === "/" }} className="nav-link !text-[0.6rem] md:!text-[0.65rem] lg:!text-[0.68rem]" activeProps={{ className: "nav-link text-accent" }}>{item.label}</Link>)}</nav>
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost" size="icon" aria-label="Search stories"><Link to="/search"><Search className="size-4" /></Link></Button>
           <Button variant="ghost" size="icon" aria-label={open ? "Close menu" : "Open menu"} className="lg:hidden" onClick={() => setOpen(!open)}>{open ? <X className="size-5" /> : <Menu className="size-5" />}</Button>
