@@ -24,9 +24,9 @@ export function PublicationShell({ children }: { children: React.ReactNode }) {
     </header>
     <main>{children}</main>
     <footer className="border-t border-border py-14">
-      <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
-        <p className="font-display text-2xl uppercase tracking-[0.12em]">The Hidden Chronicle</p>
-        <p className="mt-3 text-sm text-muted-foreground">Forgotten stories. Unanswered questions.</p>
+      <div className="mx-auto max-w-[1480px] px-5 text-center lg:px-10">
+        <p className="font-display text-xl italic tracking-wide text-foreground sm:text-2xl">“The past is never dead. It’s not even past.”</p>
+        <p className="mt-4 text-[10px] uppercase tracking-[0.25em] text-muted-foreground">William Faulkner</p>
       </div>
       <div className="mx-auto mt-10 flex max-w-[1480px] justify-between border-t border-border px-5 pt-6 text-[10px] uppercase tracking-[0.15em] text-muted-foreground lg:px-10"><span>Independent historical journal</span><Link to="/admin" className="transition-colors hover:text-foreground">Editorial desk</Link><span>© 2026</span></div>
     </footer>
