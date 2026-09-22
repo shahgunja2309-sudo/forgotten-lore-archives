@@ -1,18 +1,4 @@
 {
-  "framework": "tanstack-start",
-  "cleanUrls": true,
-  "routes": [
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/_components/(.*)",
-      "dest": "/_components/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/"
-    }
-  ]
+  "buildCommand": "npx @tanstack/start-vercel-plugin-build",
+  "outputDirectory": ".vercel/output"
 }
