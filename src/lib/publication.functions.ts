@@ -15,12 +15,13 @@ function publicClient() {
   });
 }
 
-async function enrich(client: ReturnType<typeof publicClient>, rows: Array<ArticleRow & { categories: Category | null }>) {
+async function enrich(_client: ReturnType<typeof publicClient>, rows: Array<ArticleRow & { categories: Category | null }>) {
   if (!rows.length) return [] as Article[];
   const ids = rows.map((row) => row.id);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const [{ data: likes }, { data: comments }] = await Promise.all([
-    client.from("article_likes").select("article_id").in("article_id", ids),
-    client.from("comments").select("article_id").in("article_id", ids).eq("status", "approved"),
+    supabaseAdmin.from("article_likes").select("article_id").in("article_id", ids),
+    supabaseAdmin.from("comments").select("article_id").in("article_id", ids).eq("status", "approved"),
   ]);
   return rows.map((row) => ({
     ...row,
