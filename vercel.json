@@ -1,21 +1,11 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "public": true,
   "routes": [
     {
-      "src": "/_build/(.*)",
-      "dest": "/_build/$1"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/"
+      "dest": "/$1"
     }
   ]
 }
