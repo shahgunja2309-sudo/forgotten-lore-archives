@@ -141,3 +141,44 @@ export const deleteArticle = createServerFn({ method: "POST" }).middleware([requ
   if (error) throw new Error(error.message);
   return { ok: true };
 });
+
+// ---- Guest (no sign-in) interactions ----
+const visitor = z.string().uuid();
+
+export const toggleArticleLike = createServerFn({ method: "POST" })
+  .inputValidator((data) => z.object({ articleId: z.string().uuid(), visitorId: visitor }).parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: existing } = await supabaseAdmin.from("article_likes").select("article_id").eq("article_id", data.articleId).eq("user_id", data.visitorId).maybeSingle();
+    if (existing) await supabaseAdmin.from("article_likes").delete().eq("article_id", data.articleId).eq("user_id", data.visitorId);
+    else await supabaseAdmin.from("article_likes").insert({ article_id: data.articleId, user_id: data.visitorId });
+    const { count } = await supabaseAdmin.from("article_likes").select("article_id", { count: "exact", head: true }).eq("article_id", data.articleId);
+    return { liked: !existing, count: count ?? 0 };
+  });
+
+export const toggleCommentLike = createServerFn({ method: "POST" })
+  .inputValidator((data) => z.object({ commentId: z.string().uuid(), visitorId: visitor }).parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: existing } = await supabaseAdmin.from("comment_likes").select("comment_id").eq("comment_id", data.commentId).eq("user_id", data.visitorId).maybeSingle();
+    if (existing) await supabaseAdmin.from("comment_likes").delete().eq("comment_id", data.commentId).eq("user_id", data.visitorId);
+    else await supabaseAdmin.from("comment_likes").insert({ comment_id: data.commentId, user_id: data.visitorId });
+    const { count } = await supabaseAdmin.from("comment_likes").select("comment_id", { count: "exact", head: true }).eq("comment_id", data.commentId);
+    return { liked: !existing, count: count ?? 0 };
+  });
+
+export const postComment = createServerFn({ method: "POST" })
+  .inputValidator((data) => z.object({
+    articleId: z.string().uuid(), visitorId: visitor, body: z.string().min(1).max(4000),
+    name: z.string().max(60).optional(), parentId: z.string().uuid().nullable().optional(),
+  }).parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const displayName = data.name?.trim() || "Reader";
+    await supabaseAdmin.from("profiles").upsert({ id: data.visitorId, display_name: displayName });
+    const { data: saved, error } = await supabaseAdmin.from("comments")
+      .insert({ article_id: data.articleId, user_id: data.visitorId, parent_id: data.parentId ?? null, body: data.body.trim(), status: "approved" })
+      .select("*").single();
+    if (error) throw new Error(error.message);
+    return { ...saved, comment_likes: [] as Array<{ user_id: string }>, profiles: { display_name: displayName } };
+  });
