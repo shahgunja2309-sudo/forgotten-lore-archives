@@ -71,9 +71,9 @@ const StoriesIndexRoute = StoriesIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const StoriesSlugRoute = StoriesSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => StoriesRoute,
+  id: '/stories/$slug',
+  path: '/stories/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -162,6 +162,7 @@ export interface RootRouteChildren {
   CategoriesRoute: typeof CategoriesRouteWithChildren
   ContactRoute: typeof ContactRoute
   SearchRoute: typeof SearchRoute
+  StoriesSlugRoute: typeof StoriesSlugRoute
   StoriesIndexRoute: typeof StoriesIndexRoute
 }
 
@@ -239,10 +240,10 @@ declare module '@tanstack/react-router' {
     }
     '/stories/$slug': {
       id: '/stories/$slug'
-      path: '/$slug'
+      path: '/stories/$slug'
       fullPath: '/stories/$slug'
       preLoaderRoute: typeof StoriesSlugRouteImport
-      parentRoute: typeof StoriesRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -278,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   CategoriesRoute: CategoriesRouteWithChildren,
   ContactRoute: ContactRoute,
   SearchRoute: SearchRoute,
+  StoriesSlugRoute: StoriesSlugRoute,
   StoriesIndexRoute: StoriesIndexRoute,
 }
 export const routeTree = rootRouteImport
