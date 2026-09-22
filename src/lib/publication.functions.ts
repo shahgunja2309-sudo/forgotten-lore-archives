@@ -54,7 +54,8 @@ export const getArticle = createServerFn({ method: "GET" })
       const { data: fallback } = await client.from("articles").select("*, categories(*)").eq("status", "published").neq("id", row.id).limit(3);
       related = await enrich(client, fallback ?? []);
     }
-    const { data: commentRows } = await client.from("comments").select("*, comment_likes(user_id)").eq("article_id", row.id).eq("status", "approved").order("created_at");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: commentRows } = await supabaseAdmin.from("comments").select("*, comment_likes(user_id)").eq("article_id", row.id).eq("status", "approved").order("created_at");
     const authorIds = [...new Set((commentRows ?? []).map((c) => c.user_id))];
     const { data: profiles } = authorIds.length ? await client.from("profiles").select("id, display_name").in("id", authorIds) : { data: [] };
     const comments = (commentRows ?? []).map((c) => ({ ...c, profiles: { display_name: profiles?.find((p) => p.id === c.user_id)?.display_name ?? "Reader" } }));
