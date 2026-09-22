@@ -15,12 +15,13 @@ function publicClient() {
   });
 }
 
-async function enrich(client: ReturnType<typeof publicClient>, rows: Array<ArticleRow & { categories: Category | null }>) {
+async function enrich(_client: ReturnType<typeof publicClient>, rows: Array<ArticleRow & { categories: Category | null }>) {
   if (!rows.length) return [] as Article[];
   const ids = rows.map((row) => row.id);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const [{ data: likes }, { data: comments }] = await Promise.all([
-    client.from("article_likes").select("article_id").in("article_id", ids),
-    client.from("comments").select("article_id").in("article_id", ids).eq("status", "approved"),
+    supabaseAdmin.from("article_likes").select("article_id").in("article_id", ids),
+    supabaseAdmin.from("comments").select("article_id").in("article_id", ids).eq("status", "approved"),
   ]);
   return rows.map((row) => ({
     ...row,
@@ -53,7 +54,8 @@ export const getArticle = createServerFn({ method: "GET" })
       const { data: fallback } = await client.from("articles").select("*, categories(*)").eq("status", "published").neq("id", row.id).limit(3);
       related = await enrich(client, fallback ?? []);
     }
-    const { data: commentRows } = await client.from("comments").select("*, comment_likes(user_id)").eq("article_id", row.id).eq("status", "approved").order("created_at");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: commentRows } = await supabaseAdmin.from("comments").select("*, comment_likes(user_id)").eq("article_id", row.id).eq("status", "approved").order("created_at");
     const authorIds = [...new Set((commentRows ?? []).map((c) => c.user_id))];
     const { data: profiles } = authorIds.length ? await client.from("profiles").select("id, display_name").in("id", authorIds) : { data: [] };
     const comments = (commentRows ?? []).map((c) => ({ ...c, profiles: { display_name: profiles?.find((p) => p.id === c.user_id)?.display_name ?? "Reader" } }));
