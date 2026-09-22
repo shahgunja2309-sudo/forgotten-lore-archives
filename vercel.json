@@ -1,6 +1,11 @@
 {
   "framework": "tanstack-start",
+  "cleanUrls": true,
   "routes": [
+    {
+      "src": "/_assets/(.*)",
+      "dest": "/_assets/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "/"
