@@ -1,12 +1,9 @@
 {
+  "framework": "tanstack-start",
   "routes": [
     {
-      "src": "/_serverFn/(.*)",
-      "dest": "/api/serverFn?_serverFn=$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/$1"
+      "dest": "/"
     }
   ]
 }
