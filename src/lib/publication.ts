@@ -10,6 +10,6 @@ export const imageOptions = [
   { key: "iron-mask", label: "Iron mask" },
   { key: "antikythera", label: "Antikythera mechanism" },
 ];
-export function imageFor(key: string) { return articleImages[key] ?? voynich; }
+export function imageFor(key: string, url?: string | null) { return url || articleImages[key] || voynich; }
 export function formatDate(value: string) { return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${value}T00:00:00Z`)).toUpperCase(); }
 export function compactNumber(value: number) { return Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(value); }
