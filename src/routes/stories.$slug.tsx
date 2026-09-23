@@ -111,7 +111,7 @@ function ArticlePage() {
       <div className="mt-8 flex justify-center"><Button variant={following ? "secondary" : "outline"} onClick={onToggleFollow}><UserPlus />{following ? "Following" : "Follow publication"}</Button></div>
     </header>
     <figure className="mx-auto mt-16 max-w-[1480px] px-0 lg:px-10">
-      <img src={imageFor(article.image_key)} alt={article.image_alt} width={1600} height={1008} className="aspect-[16/9] w-full object-cover sepia-[.12]" />
+      <img src={imageFor(article.image_key, article.image_url)} alt={article.image_alt} width={1600} height={1008} className="aspect-[16/9] w-full object-cover sepia-[.12]" />
       <figcaption className="mt-3 px-5 text-[10px] uppercase tracking-[.14em] text-muted-foreground lg:px-0">{article.image_alt} · Archive reconstruction</figcaption>
     </figure>
     <div className="sticky top-20 z-30 mx-auto mt-8 flex max-w-3xl flex-wrap items-center justify-center gap-1 border-y border-border bg-background/95 px-3 py-3 backdrop-blur">

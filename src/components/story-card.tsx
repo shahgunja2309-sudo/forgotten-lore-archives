@@ -5,7 +5,7 @@ import { compactNumber, formatDate, imageFor } from "@/lib/publication";
 
 export function StoryCard({ article }: { article: Article }) {
   return <article className="group">
-    <Link to="/stories/$slug" params={{ slug: article.slug }} className="block overflow-hidden bg-muted aspect-[4/3]"><img src={imageFor(article.image_key)} alt={article.image_alt} width={1408} height={1008} loading="lazy" className="h-full w-full object-cover sepia-[.18] transition duration-700 group-hover:scale-[1.025] group-hover:sepia-0" /></Link>
+    <Link to="/stories/$slug" params={{ slug: article.slug }} className="block overflow-hidden bg-muted aspect-[4/3]"><img src={imageFor(article.image_key, article.image_url)} alt={article.image_alt} width={1408} height={1008} loading="lazy" className="h-full w-full object-cover sepia-[.18] transition duration-700 group-hover:scale-[1.025] group-hover:sepia-0" /></Link>
     <div className="mt-6 flex items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-accent"><span>{article.categories?.name}</span><span className="h-px w-6 bg-border" /></div>
     <h3 className="mt-4 font-display text-3xl leading-[1.05] uppercase"><Link to="/stories/$slug" params={{ slug: article.slug }} className="transition-colors hover:text-accent">{article.title}</Link></h3>
     {article.subtitle && <p className="mt-2 font-display text-lg italic text-muted-foreground">{article.subtitle}</p>}
