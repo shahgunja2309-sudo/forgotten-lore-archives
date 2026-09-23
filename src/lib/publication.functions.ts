@@ -6,8 +6,10 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type ArticleRow = Database["public"]["Tables"]["articles"]["Row"];
-export type Article = ArticleRow & { categories: Category | null; like_count: number; comment_count: number };
+export type Article = ArticleRow & { categories: Category | null; like_count: number; comment_count: number; image_url: string | null };
 export type ContentBlock = { type: "heading" | "paragraph" | "quote" | "timeline"; text?: string; items?: Array<{ year: string; text: string }> };
+
+export const ARTICLE_BUCKET = "article-images";
 
 function publicClient() {
   return createClient<Database>(process.env['SUPABASE_URL']!, process.env['SUPABASE_PUBLISHABLE_KEY']!, {
@@ -15,20 +17,34 @@ function publicClient() {
   });
 }
 
+type AdminClient = Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"];
+
+async function signImages(admin: AdminClient, rows: Array<{ image_key: string }>) {
+  const paths = [...new Set(rows.map((r) => r.image_key).filter((k) => k.startsWith("upload:")).map((k) => k.slice(7)))];
+  if (!paths.length) return {} as Record<string, string>;
+  const { data } = await admin.storage.from(ARTICLE_BUCKET).createSignedUrls(paths, 60 * 60 * 24 * 7);
+  const map: Record<string, string> = {};
+  (data ?? []).forEach((item) => { if (item.path && item.signedUrl) map[`upload:${item.path}`] = item.signedUrl; });
+  return map;
+}
+
 async function enrich(_client: ReturnType<typeof publicClient>, rows: Array<ArticleRow & { categories: Category | null }>) {
   if (!rows.length) return [] as Article[];
   const ids = rows.map((row) => row.id);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const [{ data: likes }, { data: comments }] = await Promise.all([
+  const [{ data: likes }, { data: comments }, signed] = await Promise.all([
     supabaseAdmin.from("article_likes").select("article_id").in("article_id", ids),
     supabaseAdmin.from("comments").select("article_id").in("article_id", ids).eq("status", "approved"),
+    signImages(supabaseAdmin, rows),
   ]);
   return rows.map((row) => ({
     ...row,
     like_count: likes?.filter((item) => item.article_id === row.id).length ?? 0,
     comment_count: comments?.filter((item) => item.article_id === row.id).length ?? 0,
+    image_url: signed[row.image_key] ?? null,
   }));
 }
+
 
 export const getHomeData = createServerFn({ method: "GET" }).handler(async () => {
   const client = publicClient();
