@@ -145,6 +145,17 @@ export const deleteArticle = createServerFn({ method: "POST" }).middleware([requ
 // ---- Guest (no sign-in) interactions ----
 const visitor = z.string().uuid();
 
+export const toggleFollow = createServerFn({ method: "POST" })
+  .inputValidator((data) => z.object({ visitorId: visitor }).parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: existing } = await supabaseAdmin.from("followers").select("user_id").eq("user_id", data.visitorId).maybeSingle();
+    if (existing) await supabaseAdmin.from("followers").delete().eq("user_id", data.visitorId);
+    else await supabaseAdmin.from("followers").insert({ user_id: data.visitorId });
+    return { following: !existing };
+  });
+
+
 export const toggleArticleLike = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ articleId: z.string().uuid(), visitorId: visitor }).parse(data))
   .handler(async ({ data }) => {
