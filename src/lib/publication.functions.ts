@@ -133,8 +133,32 @@ export const getAdminData = createServerFn({ method: "GET" }).middleware([requir
     supabaseAdmin.from("followers").select("user_id", { count: "exact", head: true }),
     supabaseAdmin.from("comments").select("id", { count: "exact", head: true }),
   ]);
-  return { articles: articles ?? [], categories: categories ?? [], followers: followers ?? 0, comments: comments ?? 0 };
+  const signed = await signImages(supabaseAdmin, articles ?? []);
+  const withImages = (articles ?? []).map((a) => ({ ...a, image_url: signed[a.image_key] ?? null }));
+  return { articles: withImages, categories: categories ?? [], followers: followers ?? 0, comments: comments ?? 0 };
 });
+
+export const uploadArticleImage = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ fileName: z.string().min(1), dataUrl: z.string().min(10) }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: role } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId).eq("role", "editor").maybeSingle();
+    if (!role) throw new Error("Editor access required");
+    const match = /^data:(image\/[a-zA-Z+]+);base64,(.+)$/.exec(data.dataUrl);
+    if (!match) throw new Error("Please choose a JPG, PNG or WebP image.");
+    const contentType = match[1]!;
+    const bytes = Buffer.from(match[2]!, "base64");
+    if (bytes.byteLength > 8 * 1024 * 1024) throw new Error("Image must be under 8 MB.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: buckets } = await supabaseAdmin.storage.listBuckets();
+    if (!buckets?.some((b) => b.name === ARTICLE_BUCKET)) await supabaseAdmin.storage.createBucket(ARTICLE_BUCKET, { public: false });
+    const ext = data.fileName.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabaseAdmin.storage.from(ARTICLE_BUCKET).upload(path, bytes, { contentType, upsert: false });
+    if (error) throw new Error(error.message);
+    const { data: signed } = await supabaseAdmin.storage.from(ARTICLE_BUCKET).createSignedUrl(path, 60 * 60 * 24 * 7);
+    return { image_key: `upload:${path}`, url: signed?.signedUrl ?? null };
+  });
+
 
 export const saveArticle = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((data) => articleInput.parse(data)).handler(async ({ data, context }) => {
   const { data: role } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId).eq("role", "editor").maybeSingle();
